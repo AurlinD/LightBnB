@@ -17,30 +17,19 @@ const pool = new Pool({
  * @return {Promise<{}>} A promise to the user.
  */
 const getUserWithEmail = function(email) {
-  pool
-    .query(
-      `
-SELECT * 
-FROM users
-WHERE email = '%${email}%'
-`
-    )
-    .then(res => {
-      res.rows;
-    })
-    .catch(() => {
+  const query = {
+    text: `
+      SELECT * FROM users
+      WHERE email = $1 `,
+    values: [email]
+  };
+  return pool.query(query).then(res => {
+    if (res.rows.length === 0) {
       return null;
-    });
-  let user;
-  for (const userId in users) {
-    user = users[userId];
-    if (user.email.toLowerCase() === email.toLowerCase()) {
-      break;
     } else {
-      user = null;
+      return res.rows[0];
     }
-  }
-  return Promise.resolve(user);
+  });
 };
 exports.getUserWithEmail = getUserWithEmail;
 
@@ -50,21 +39,19 @@ exports.getUserWithEmail = getUserWithEmail;
  * @return {Promise<{}>} A promise to the user.
  */
 const getUserWithId = function(id) {
-  pool
-    .query(
-      `
-SELECT * 
-FROM users
-WHERE id = '%${id}%'
-`
-    )
-    .then(res => {
-      res.rows;
-    })
-    .catch(() => {
+  const query = {
+    text: `
+      SELECT * FROM users
+      WHERE id = $1 `,
+    values: [id]
+  };
+  return pool.query(query).then(res => {
+    if (res.rows.length === 0) {
       return null;
-    });
-  return Promise.resolve(users[id]);
+    } else {
+      return res.rows[0];
+    }
+  });
 };
 exports.getUserWithId = getUserWithId;
 
@@ -74,18 +61,14 @@ exports.getUserWithId = getUserWithId;
  * @return {Promise<{}>} A promise to the user.
  */
 const addUser = function(user) {
-  pool
-    .query(
-      `INSERT INTO users (name,email,password) VALUES ($1,$2,$3) RETURNING *;`,
-      [user.name, user.email, user.password]
-    )
-    .then(res => {
-      res.rows;
-    });
-  const userId = Object.keys(users).length + 1;
-  user.id = userId;
-  users[userId] = user;
-  return Promise.resolve(user);
+  const { name, email, password } = user;
+  const query = {
+    text: `
+      INSERT INTO users (name, email, password) 
+      VALUES ($1, $2, $3)`,
+    values: [name, email, password]
+  };
+  return pool.query(query);
 };
 exports.addUser = addUser;
 
