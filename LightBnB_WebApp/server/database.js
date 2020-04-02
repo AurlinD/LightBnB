@@ -17,6 +17,18 @@ const pool = new Pool({
  * @return {Promise<{}>} A promise to the user.
  */
 const getUserWithEmail = function(email) {
+  pool
+    .query(
+      `
+SELECT * 
+FROM users
+WHERE email = ${email}
+`,
+      [email]
+    )
+    .then(res => {
+      res.rows;
+    });
   let user;
   for (const userId in users) {
     user = users[userId];
