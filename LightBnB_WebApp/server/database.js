@@ -22,12 +22,14 @@ const getUserWithEmail = function(email) {
       `
 SELECT * 
 FROM users
-WHERE email = ${email}
-`,
-      [email]
+WHERE email = '%${email}%'
+`
     )
     .then(res => {
       res.rows;
+    })
+    .catch(error => {
+      console.log("getUserWithEmail threw error", error);
     });
   let user;
   for (const userId in users) {
