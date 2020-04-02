@@ -28,8 +28,8 @@ WHERE email = '%${email}%'
     .then(res => {
       res.rows;
     })
-    .catch(error => {
-      console.log("getUserWithEmail threw error", error);
+    .catch(() => {
+      return null;
     });
   let user;
   for (const userId in users) {
