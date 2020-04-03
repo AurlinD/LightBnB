@@ -99,6 +99,14 @@ exports.getAllReservations = getAllReservations;
 
 /// Properties
 
+// {
+//   city,
+//   owner_id,
+//   minimum_price_per_night,
+//   maximum_price_per_night,
+//   minimum_rating
+// }
+
 /**
  * Get all properties.
  * @param {{}} options An object containing query options.
@@ -165,14 +173,65 @@ const getAllProperties = function(options, limit = 10) {
 exports.getAllProperties = getAllProperties;
 
 /**
+ * 
+ * {
+  owner_id: int,
+  title: string,
+  description: string,
+  thumbnail_photo_url: string,
+  cover_photo_url: string,
+  cost_per_night: string,
+  street: string,
+  city: string,
+  province: string,
+  post_code: string,
+  country: string,
+  parking_spaces: int,
+  number_of_bathrooms: int,
+  number_of_bedrooms: int
+}
  * Add a property to the database
  * @param {{}} property An object containing all of the property details.
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
-  const propertyId = Object.keys(properties).length + 1;
-  property.id = propertyId;
-  properties[propertyId] = property;
-  return Promise.resolve(property);
+  const {
+    owner_id,
+    title,
+    description,
+    thumbnail_photo_url,
+    cover_photo_url,
+    cost_per_night,
+    street,
+    city,
+    province,
+    post_code,
+    country,
+    parking_spaces,
+    number_of_bathrooms,
+    number_of_bedrooms
+  } = property;
+  const query = {
+    text: `
+        INSERT INTO properties (owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, street, city, province, post_code, country, parking_spaces, number_of_bathrooms, number_of_bedrooms)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`,
+    values: [
+      owner_id,
+      title,
+      description,
+      thumbnail_photo_url,
+      cover_photo_url,
+      cost_per_night,
+      street,
+      city,
+      province,
+      post_code,
+      country,
+      parking_spaces,
+      number_of_bathrooms,
+      number_of_bedrooms
+    ]
+  };
+  return pool.query(query);
 };
 exports.addProperty = addProperty;
